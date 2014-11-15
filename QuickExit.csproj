@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{53F47534-1537-4369-94EF-79311FA08A9F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>QuickExit</RootNamespace>
+    <AssemblyName>QuickExit</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <ReleaseVersion>1.0</ReleaseVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <CustomCommands>
+      <CustomCommands>
+        <Command type="AfterBuild" command="cp /home/malah/Code/QuickExit/bin/Release/QuickExit.dll /home/malah/Code/QuickExit/GameData/QuickExit/Plugins/" />
+        <Command type="AfterBuild" command="cp /home/malah/Code/QuickExit/README.md /home/malah/Code/QuickExit/GameData/QuickExit/" />
+        <Command type="AfterBuild" command="cp /home/malah/Code/QuickExit/COPYING /home/malah/Code/QuickExit/GameData/QuickExit/" />
+        <Command type="AfterBuild" command="cp /home/malah/Code/QuickExit/QuickExit.version /home/malah/Code/QuickExit/GameData/QuickExit/" />
+        <Command type="AfterBuild" command="cp -rf /home/malah/Code/QuickExit/GameData/QuickExit/ &quot;/home/malah/.local/share/Steam/SteamApps/common/Kerbal Space Program/GameData/&quot;" />
+      </CustomCommands>
+    </CustomCommands>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\..\.steam\steam\SteamApps\common\Kerbal Space Program\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>..\..\.steam\steam\SteamApps\common\Kerbal Space Program\KSP_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-UnityScript">
+      <HintPath>..\..\.steam\steam\SteamApps\common\Kerbal Space Program\KSP_Data\Managed\Assembly-UnityScript.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-UnityScript-firstpass">
+      <HintPath>..\..\.steam\steam\SteamApps\common\Kerbal Space Program\KSP_Data\Managed\Assembly-UnityScript-firstpass.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>..\..\.steam\steam\SteamApps\common\Kerbal Space Program\KSP_Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityScript.Lang">
+      <HintPath>..\..\.steam\steam\SteamApps\common\Kerbal Space Program\KSP_Data\Managed\UnityScript.Lang.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QuickExit.cs" />
+    <Compile Include="ToolbarWrapper.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="GameData\" />
+    <Folder Include="GameData\QuickExit\PluginData\" />
+    <Folder Include="GameData\QuickExit\PluginData\QuickExit\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="GameData\QuickExit\COPYING" />
+    <None Include="GameData\QuickExit\QuickExit.version" />
+    <None Include="GameData\QuickExit\README.md" />
+    <None Include="GameData\QuickExit\Plugins\QuickExit.dll" />
+    <None Include="GameData\QuickExit\Textures\StockToolBar.png" />
+    <None Include="COPYING" />
+    <None Include="README.md" />
+    <None Include="QuickExit.version" />
+    <None Include="GameData\QuickExit\Textures\BlizzyToolBar.png" />
+    <None Include="Exit.xcf" />
+  </ItemGroup>
+</Project>
