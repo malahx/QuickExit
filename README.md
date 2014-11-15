@@ -37,7 +37,7 @@ Delete the QuickExit folder in your KSP/GameData folder.
 
 #### Changelog
 
-v1.00 - 2014.11.15
+v1.00 - 2014.11.16
 First release
 
 #### Thanks !
