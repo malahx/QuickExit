@@ -83,6 +83,12 @@ namespace QuickExit {
 							_CanSavegame = !_info.IsReadOnly;
 						}
 					}
+						
+					if (_CanSavegame) {
+						if (PauseMenu.canSaveAndExit != ClearToSaveStatus.CLEAR) {
+							_CanSavegame = false;
+						}
+					}
 
 					if (_CanSavegame) {
 						if (HighLogic.LoadedSceneIsFlight) {
@@ -212,7 +218,7 @@ namespace QuickExit {
 			if (AutomaticSave && HighLogic.LoadedSceneIsGame) {
 				if (CanSavegame) {
 					myDebug ("Savegame");
-					GamePersistence.SaveGame ("persistent.sfs", HighLogic.SaveFolder, SaveMode.OVERWRITE);
+					GamePersistence.SaveGame ("persistent", HighLogic.SaveFolder, SaveMode.OVERWRITE);
 				} else {
 					myDebug ("Can't Save");
 					i = 10;

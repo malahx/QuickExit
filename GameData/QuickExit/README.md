@@ -37,8 +37,11 @@ Delete the QuickExit folder in your KSP/GameData folder.
 
 #### Changelog
 
+v1.01 - 2014.11.16
+- Fix: Corrected the savegame file, now it will properly save!
+
 v1.00 - 2014.11.16
-First release
+- First release.
 
 #### Thanks !
 
@@ -50,5 +53,8 @@ and to Squad for this awesome game.
 
 #### Links
 
+- http://forum.kerbalspaceprogram.com/threads/95168
+- https://kerbalstuff.com/mod/341/QuickExit
+- http://kerbal.curseforge.com/ksp-mods/225624-quickexit
 - https://github.com/malahx/QuickExit
 - Toolbar: http://forum.kerbalspaceprogram.com/threads/60863
