@@ -39,6 +39,7 @@ Delete the QuickExit folder in your KSP/GameData folder.
 
 v1.10 - 2014.12.22
 - New: Added the possibility to put the QuickExit button with the Stock KSP button,
+- Update ToolbarWrapper to 1.7.8
 - Update to 0.90
 
 v1.01 - 2014.11.16
