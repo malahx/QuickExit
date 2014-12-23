@@ -1,5 +1,5 @@
 ﻿#### QuickExit
-#### A plugin for Kerbal Space Program 0.25.0
+#### A plugin for Kerbal Space Program 0.90.0
 #### Copyright 2014 Malah
 
 This program is free software: you can redistribute it and/or modify
@@ -16,26 +16,30 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>. 
 
 
-#### What is it ?
+#### What is it?
 
 QuickExit is a plugin which adds the possibility to exit KSP at any time.
 
-#### How does it work ?
+#### How does it work?
 
 You have three solutions to launch QuickExit:
 - push on f7,
 - with the stock toolbar,
-- with the Blizzy toolbar (an optional mod).
+- with the Blizzy Toolbar (an optional mod).
 
-#### How to install it ?
+#### How to install it?
 
 Unzip all files. Put the QuickExit folder in your KSP/GameData folder.
 
-#### How to uninstall it ?
+#### How to uninstall it?
 
 Delete the QuickExit folder in your KSP/GameData folder.
 
 #### Changelog
+
+v1.10 - 2014.12.22
+- New: Added the possibility to put the QuickExit button with the Stock KSP button,
+- Update to 0.90
 
 v1.01 - 2014.11.16
 - Fix: Corrected the savegame file, now it will properly save!
@@ -43,7 +47,7 @@ v1.01 - 2014.11.16
 v1.00 - 2014.11.16
 - First release.
 
-#### Thanks !
+#### Thanks!
 
 to jafo38506 to have requested this mod,
 to blizzy for his Toolbar mod,

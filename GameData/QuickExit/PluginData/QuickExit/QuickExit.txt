@@ -1,0 +1,6 @@
+﻿AutomaticSave = false
+Key = f7
+StockToolBar = true
+StockToolBar_inlast = false
+BlizzyToolBar = true
+ActiveGUI = KSP window 7

@@ -19,20 +19,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using System;
 using System.IO;
 using System.Threading;
+using System.Linq;
 using UnityEngine;
 
 namespace QuickExit {
-	[KSPAddon(KSPAddon.Startup.EditorAny | KSPAddon.Startup.TrackingStation | KSPAddon.Startup.Flight | KSPAddon.Startup.SpaceCentre, false)]
+	[KSPAddon(KSPAddon.Startup.EveryScene, false)]
 	public class QuickExit : MonoBehaviour {
-
-		public static string VERSION = "1.00";
+		public static string VERSION = "1.10";
 		public static string MOD = "QuickExit";
 
 		private static bool isdebug = true;
 
 		private Texture StockToolBar_Texture = (Texture)GameDatabase.Instance.GetTexture ("QuickExit/Textures/StockToolBar", false);
 		private string BlizzyToolBar_TexturePath = "QuickExit/Textures/BlizzyToolBar";
-		private string File_settings = KSPUtil.ApplicationRootPath + "GameData/QuickExit/PluginData/QuickExit/QuickExit.cfg";
+		private string File_settings = KSPUtil.ApplicationRootPath + "GameData/QuickExit/PluginData/QuickExit/QuickExit.txt";
 
 		private static bool isConfig = false;
 
@@ -62,6 +62,8 @@ namespace QuickExit {
 		[Persistent]
 		private bool StockToolBar = true;
 		[Persistent]
+		private bool StockToolBar_inlast = false;
+		[Persistent]
 		private bool BlizzyToolBar = true;
 		[Persistent]
 		private string ActiveGUI = HighLogic.Skin.name;
@@ -78,7 +80,7 @@ namespace QuickExit {
 					_CanSavegame = !isInSave;
 					if (_CanSavegame) {
 						string _savegame = KSPUtil.ApplicationRootPath + "saves/" + HighLogic.SaveFolder + "/persistent.sfs";
-						if (System.IO.File.Exists (_savegame)) {
+						if (File.Exists (_savegame)) {
 							FileInfo _info = new FileInfo (_savegame);
 							_CanSavegame = !_info.IsReadOnly;
 						}
@@ -144,17 +146,16 @@ namespace QuickExit {
 			isInSave = false;
 			if (isExit) {
 				i = 5;
-				myDebug ("Game Saved");
+				Log ("Game Saved");
 			}
 		}
 		private void OnGameStateSave(ConfigNode configNode) {
 			isInSave = true;
 		}
 
-
 		// GESTION DES TOOLBARS
 		private void OnGUIApplicationLauncherReady() {
-			if (StockToolBar) {
+			if (StockToolBar && !StockToolBar_inlast) {
 				StockToolBar_Init ();
 			}
 		}
@@ -173,12 +174,17 @@ namespace QuickExit {
 		}
 		private void StockToolBar_Init() {
 			if (StockToolBar_Button == null && ApplicationLauncher.Ready) {
-				StockToolBar_Button = ApplicationLauncher.Instance.AddModApplication (Dialog, null, null, null, null, null, ApplicationLauncher.AppScenes.ALWAYS, StockToolBar_Texture);
+				if (!StockToolBar_inlast) {
+					StockToolBar_Button = ApplicationLauncher.Instance.AddModApplication (Dialog, null, null, null, null, null, ApplicationLauncher.AppScenes.ALWAYS, StockToolBar_Texture);
+				} else {
+					StockToolBar_Button = ApplicationLauncher.Instance.AddApplication (Dialog, null, null, null, null, null, StockToolBar_Texture);
+				}
 			}
 		}
 		private void StockToolBar_Destroy() {
 			if (StockToolBar_Button != null) {
 				ApplicationLauncher.Instance.RemoveModApplication (StockToolBar_Button);
+				ApplicationLauncher.Instance.RemoveApplication (StockToolBar_Button);
 				StockToolBar_Button = null;
 			}
 		}
@@ -187,7 +193,7 @@ namespace QuickExit {
 		// GESTION DU POPUP
 		private void Dialog() {
 			Clear();
-			myDebug("Dialog");
+			Log("Dialog");
 			Lock ();
 			DialogOption[] options = new DialogOption[3];
 			options[0] = new DialogOption("Oh noooo!", Clear);
@@ -197,11 +203,11 @@ namespace QuickExit {
 			PopupDialog.SpawnPopupDialog (diag, true, AssetBase.GetGUISkin (ActiveGUI));
 		}
 		private void Config() {
-			myDebug("Config");
+			Log("Config");
 			isConfig = true;
 		}
 		private void Clear() {
-			myDebug("Clear");
+			Log("Clear");
 			UnLock ();
 			if (StockToolBar && StockToolBar_Button != null && ApplicationLauncher.Ready) {
 				if (StockToolBar_Button.State == RUIToggleButton.ButtonState.TRUE) {
@@ -213,14 +219,14 @@ namespace QuickExit {
 			i = 5;
 		}
 		private void Exit() {
-			myDebug("Exit");
+			Log("Exit");
 			isExit = true;
 			if (AutomaticSave && HighLogic.LoadedSceneIsGame) {
 				if (CanSavegame) {
-					myDebug ("Savegame");
+					Log ("Savegame");
 					GamePersistence.SaveGame ("persistent", HighLogic.SaveFolder, SaveMode.OVERWRITE);
 				} else {
-					myDebug ("Can't Save");
+					Log ("Can't Save");
 					i = 10;
 				}
 				Start_WaitForExit ();
@@ -234,11 +240,11 @@ namespace QuickExit {
 				CantQuitInSave ();
 				return;
 			}
-			myDebug("ExitNow");
+			Log("ExitNow");
 			Application.Quit ();
 		}
 		private static void CantQuitInSave() {
-			myDebug("CantQuitInSave");
+			Log("CantQuitInSave");
 			ScreenMessages.PostScreenMessage ("[" + MOD + "] Can't exit while a savegame is in progress.", 10, ScreenMessageStyle.LOWER_CENTER);
 			isExit = true;
 			Start_WaitForExit ();
@@ -255,7 +261,7 @@ namespace QuickExit {
 		private static void WaitForExit() {
 			try {
 				while (isExit) {
-					myDebug ("Exit in " + i + "s.");
+					Log ("Exit in " + i + "s.");
 					if (i <= 0) {
 						ExitNow ();
 						break;
@@ -265,7 +271,7 @@ namespace QuickExit {
 				}
 			}
 			finally {
-				myDebug ("Thread ended");
+				Log ("Thread ended");
 			}
 		}
 		private void Lock() {
@@ -288,8 +294,17 @@ namespace QuickExit {
 					Dialog ();
 				}
 			}
+			if (StockToolBar_inlast) {
+				if (StockToolBar && StockToolBar_Button == null && ApplicationLauncher.Ready && MessageSystem.Ready) {
+					if (HighLogic.CurrentGame.Mode == Game.Modes.CAREER) {
+						if (ContractsApp.Instance == null) {
+							return;
+						}
+					}
+					StockToolBar_Init ();
+				}
+			}
 		}
-
 
 		// AFFICHAGE DE L'INTERFACE
 		private void OnGUI() {
@@ -323,6 +338,11 @@ namespace QuickExit {
 			StockToolBar = GUILayout.Toggle (StockToolBar, "Use the Stock ToolBar", GUILayout.Width(210));
 			GUILayout.EndHorizontal();
 			GUILayout.Space(5);
+			GUILayout.BeginHorizontal();
+			GUILayout.Space(30);
+			StockToolBar_inlast = GUILayout.Toggle (StockToolBar_inlast, "Put QuickExit in Stock", GUILayout.Width(180));
+			GUILayout.EndHorizontal();
+			GUILayout.Space(5);
 			if (isBlizzyToolBar) {
 				GUILayout.BeginHorizontal();
 				BlizzyToolBar = GUILayout.Toggle (BlizzyToolBar, "Use the Blizzy ToolBar", GUILayout.Width(210));
@@ -350,10 +370,10 @@ namespace QuickExit {
 			}
 			GUILayout.Space(5);
 			if (GUILayout.Button ("Close", GUILayout.ExpandWidth(true) ,GUILayout.Height(30))) {
-				if (StockToolBar && StockToolBar_Button == null) {
+				if (StockToolBar) {
+					StockToolBar_Destroy ();
 					StockToolBar_Init ();
-				}
-				if (!StockToolBar && StockToolBar_Button != null) {
+				} else {
 					StockToolBar_Destroy ();
 				}
 				if (BlizzyToolBar && BlizzyToolBar_Button == null) {
@@ -365,7 +385,7 @@ namespace QuickExit {
 				try {
 					Input.GetKey(Key);
 				} catch {
-					myDebug ("Wrong key: " + Key);
+					Log ("Wrong key: " + Key);
 					Key = "f7";
 				}
 				Save ();
@@ -407,19 +427,23 @@ namespace QuickExit {
 		public void Save() {
 			ConfigNode _temp = ConfigNode.CreateConfigFromObject(this, new ConfigNode());
 			_temp.Save(File_settings);
-			myDebug("Save");
+			Log("Save");
 		}
 		public void Load() {
-			if (System.IO.File.Exists (File_settings)) {
+			if (File.Exists (File_settings)) {
 				ConfigNode _temp = ConfigNode.Load (File_settings);
-				ConfigNode.LoadObjectFromConfig (this, _temp);
-				myDebug("Load");
+				if (_temp.HasValue ("AutomaticSave") && _temp.HasValue ("StockToolBar") && _temp.HasValue ("StockToolBar_inlast") && _temp.HasValue ("BlizzyToolBar") && _temp.HasValue ("ActiveGUI") && _temp.HasValue ("Key")) {
+					ConfigNode.LoadObjectFromConfig (this, _temp);
+					Log("Load");
+					return;
+				}
 			}
+			Save ();
 		}
 
 
 		// AFFICHAGE DES MESSAGES SUR LA CONSOLE
-		private static void myDebug(string String) {
+		private static void Log(string String) {
 			if (isdebug) {
 				Debug.Log (MOD + "(" + VERSION + "): " + String);
 			}

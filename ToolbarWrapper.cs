@@ -402,7 +402,7 @@ namespace QuickExit {
 	/// <example>
 	/// <code>
 	/// IButton button = ...
-	/// button.Visibility = new GameScenesVisibility(GameScenes.EDITOR, GameScenes.SPH);
+	/// button.Visibility = new GameScenesVisibility(GameScenes.EDITOR, GameScenes.FLIGHT);
 	/// </code>
 	/// </example>
 	/// <seealso cref="IButton.Visibility"/>
