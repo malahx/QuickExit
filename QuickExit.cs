@@ -1,6 +1,6 @@
 ﻿/* 
 QuickExit
-Copyright 2014 Malah
+Copyright 2015 Malah
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -25,21 +25,25 @@ using UnityEngine;
 namespace QuickExit {
 	[KSPAddon(KSPAddon.Startup.EveryScene, false)]
 	public class QuickExit : MonoBehaviour {
-		public static string VERSION = "1.10";
+		public static string VERSION = "1.20";
 		public static string MOD = "QuickExit";
 
 		private static bool isdebug = true;
 
-		private Texture StockToolBar_Texture = (Texture)GameDatabase.Instance.GetTexture ("QuickExit/Textures/StockToolBar", false);
+		private string StockToolBar_TexturePath = "QuickExit/Textures/StockToolBar";
 		private string BlizzyToolBar_TexturePath = "QuickExit/Textures/BlizzyToolBar";
-		private string File_settings = KSPUtil.ApplicationRootPath + "GameData/QuickExit/PluginData/QuickExit/QuickExit.txt";
+		private string File_settings = KSPUtil.ApplicationRootPath + "GameData/QuickExit/Config.txt";
 
 		private static bool isConfig = false;
 
 		private ApplicationLauncherButton StockToolBar_Button;
 		private IButton BlizzyToolBar_Button;
-		private GUIStyle TextStyle = new GUIStyle ();
-		private GUIStyle TextStyleExitIn = new GUIStyle ();
+
+		[KSPField(isPersistant = true)]
+		private static MultiOptionDialog MODialog;
+
+		private GUIStyle TextStyle;
+		private GUIStyle TextStyleExitIn;
 		private static int i = 5;
 		private Rect Window_Rect = new Rect();
 		public static bool isExit = false;
@@ -110,19 +114,23 @@ namespace QuickExit {
 
 		private void Awake() {
 			Load ();
+
 			GameEvents.onGameStateSaved.Add (OnGameStateSaved);
 			GameEvents.onGameStateSave.Add (OnGameStateSave);
 			GameEvents.onGUIApplicationLauncherReady.Add (OnGUIApplicationLauncherReady);
+
 			if (BlizzyToolBar && HighLogic.LoadedSceneIsGame) {
 				BlizzyToolBar_Init ();
 			}
 
+			TextStyle = new GUIStyle ();
 			TextStyle.stretchWidth = true;
 			TextStyle.stretchHeight = true;
 			TextStyle.alignment = TextAnchor.MiddleCenter;
 			TextStyle.fontStyle = FontStyle.Bold;
 			TextStyle.normal.textColor = Color.white;
 
+			TextStyleExitIn = new GUIStyle ();
 			TextStyleExitIn.stretchWidth = true;
 			TextStyleExitIn.stretchHeight = true;
 			TextStyleExitIn.alignment = TextAnchor.MiddleCenter;
@@ -130,10 +138,12 @@ namespace QuickExit {
 			TextStyleExitIn.fontStyle = FontStyle.Bold;
 			TextStyleExitIn.normal.textColor = Color.red;
 		}
+
 		private void OnDestroy() {
 			GameEvents.onGameStateSaved.Remove (OnGameStateSaved);
 			GameEvents.onGameStateSave.Remove (OnGameStateSave);
 			GameEvents.onGUIApplicationLauncherReady.Remove (OnGUIApplicationLauncherReady);
+
 			StockToolBar_Destroy ();
 			if (BlizzyToolBar && HighLogic.LoadedSceneIsGame) {
 				BlizzyToolBar_Destroy ();
@@ -161,9 +171,9 @@ namespace QuickExit {
 		}
 		private void BlizzyToolBar_Init() {
 			if (isBlizzyToolBar && BlizzyToolBar_Button == null) {
-				BlizzyToolBar_Button = ToolbarManager.Instance.add("QuickExit", "QuickExit");
+				BlizzyToolBar_Button = ToolbarManager.Instance.add(MOD, MOD);
 				BlizzyToolBar_Button.TexturePath = BlizzyToolBar_TexturePath;
-				BlizzyToolBar_Button.ToolTip = "QuickExit";
+				BlizzyToolBar_Button.ToolTip = MOD;
 				BlizzyToolBar_Button.OnClick += (e) => Dialog();
 			}
 		}
@@ -174,10 +184,11 @@ namespace QuickExit {
 		}
 		private void StockToolBar_Init() {
 			if (StockToolBar_Button == null && ApplicationLauncher.Ready) {
+				Texture2D _texture = GameDatabase.Instance.GetTexture (StockToolBar_TexturePath, false);
 				if (!StockToolBar_inlast) {
-					StockToolBar_Button = ApplicationLauncher.Instance.AddModApplication (Dialog, null, null, null, null, null, ApplicationLauncher.AppScenes.ALWAYS, StockToolBar_Texture);
+					StockToolBar_Button = ApplicationLauncher.Instance.AddModApplication (Dialog, null, null, null, null, null, ApplicationLauncher.AppScenes.ALWAYS, _texture);
 				} else {
-					StockToolBar_Button = ApplicationLauncher.Instance.AddApplication (Dialog, null, null, null, null, null, StockToolBar_Texture);
+					StockToolBar_Button = ApplicationLauncher.Instance.AddApplication (Dialog, null, null, null, null, null, _texture);
 				}
 			}
 		}
@@ -189,18 +200,17 @@ namespace QuickExit {
 			}
 		}
 
-
 		// GESTION DU POPUP
 		private void Dialog() {
 			Clear();
 			Log("Dialog");
 			Lock ();
 			DialogOption[] options = new DialogOption[3];
-			options[0] = new DialogOption("Oh noooo!", Clear);
+			options[0] = new DialogOption(string.Format("Oh noooo! ({0})", GameSettings.MODIFIER_KEY.primary.ToString()), Clear);
 			options[1] = new DialogOption("Configurations!", Config);
-			options[2] = new DialogOption("Exit, now!", Exit);
-			MultiOptionDialog diag = new MultiOptionDialog ("Are you sure you want to exit KSP?", windowTitle: "QuickExit", skin: AssetBase.GetGUISkin (ActiveGUI), options: options);
-			PopupDialog.SpawnPopupDialog (diag, true, AssetBase.GetGUISkin (ActiveGUI));
+			options[2] = new DialogOption(string.Format("Exit, now! ({0} + {1})", GameSettings.MODIFIER_KEY.primary.ToString(), Key), Exit);
+			MODialog = new MultiOptionDialog ("Are you sure you want to exit KSP?", windowTitle: "QuickExit", skin: AssetBase.GetGUISkin (ActiveGUI), options: options);
+			PopupDialog.SpawnPopupDialog (MODialog, true, AssetBase.GetGUISkin (ActiveGUI));
 		}
 		private void Config() {
 			Log("Config");
@@ -217,7 +227,10 @@ namespace QuickExit {
 			isConfig = false;
 			isExit = false;
 			i = 5;
+			MODialog = null;
 		}
+
+		// GESTION DE LA SORTIE DE KSP
 		private void Exit() {
 			Log("Exit");
 			isExit = true;
@@ -278,22 +291,39 @@ namespace QuickExit {
 			if (HighLogic.LoadedSceneIsFlight) {
 				FlightDriver.SetPause (true);
 			}
-			InputLockManager.SetControlLock(ControlTypes.All, "QuickExit");
+			InputLockManager.SetControlLock(ControlTypes.All, MOD);
 		}
 		private void UnLock() {
 			if (HighLogic.LoadedSceneIsFlight) {
 				FlightDriver.SetPause (false);
 			}
-			InputLockManager.RemoveControlLock("QuickExit");
+			InputLockManager.RemoveControlLock(MOD);
 		}
 
-		// GESTION DE LA TOUCHE EXIT
+		// GESTION DES RACCOURCIS ET DE LA TOOLBAR
 		private void Update() {
-			if (!isConfig) {
-				if (Input.GetKeyDown (Key)) {
-					Dialog ();
+			if (MODialog != null) {
+				if (MODialog.Options.Length > 0) {
+					if (GameSettings.MODIFIER_KEY.GetKeyDown ()) {
+						if (MODialog.Options.Length > 0) {
+							MODialog.Options [0].OptionSelected ();
+						}
+					}
 				}
 			}
+			if (Input.GetKeyDown (Key)) {
+				if (GameSettings.MODIFIER_KEY.GetKey ()) {
+					if (!isExit) {
+						Clear ();
+						Lock ();
+						Exit ();
+					} else {
+						Clear ();
+					}
+				} else if (!isConfig) {
+					Dialog ();
+				}
+			} 
 			if (StockToolBar_inlast) {
 				if (StockToolBar && StockToolBar_Button == null && ApplicationLauncher.Ready && MessageSystem.Ready) {
 					if (HighLogic.CurrentGame.Mode == Game.Modes.CAREER) {
@@ -338,11 +368,13 @@ namespace QuickExit {
 			StockToolBar = GUILayout.Toggle (StockToolBar, "Use the Stock ToolBar", GUILayout.Width(210));
 			GUILayout.EndHorizontal();
 			GUILayout.Space(5);
-			GUILayout.BeginHorizontal();
-			GUILayout.Space(30);
-			StockToolBar_inlast = GUILayout.Toggle (StockToolBar_inlast, "Put QuickExit in Stock", GUILayout.Width(180));
-			GUILayout.EndHorizontal();
-			GUILayout.Space(5);
+			if (StockToolBar) {
+				GUILayout.BeginHorizontal ();
+				GUILayout.Space (30);
+				StockToolBar_inlast = GUILayout.Toggle (StockToolBar_inlast, "Put QuickExit in Stock", GUILayout.Width (180));
+				GUILayout.EndHorizontal ();
+				GUILayout.Space (5);
+			}
 			if (isBlizzyToolBar) {
 				GUILayout.BeginHorizontal();
 				BlizzyToolBar = GUILayout.Toggle (BlizzyToolBar, "Use the Blizzy ToolBar", GUILayout.Width(210));

@@ -1,6 +1,6 @@
 ﻿#### QuickExit
 #### A plugin for Kerbal Space Program 0.90.0
-#### Copyright 2014 Malah
+#### Copyright 2015 Malah
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -36,6 +36,11 @@ Unzip all files. Put the QuickExit folder in your KSP/GameData folder.
 Delete the QuickExit folder in your KSP/GameData folder.
 
 #### Changelog
+
+v1.20 - 2015.02.13
+- New: Added of the possibility to quit the QuickExit window with the modifier key,
+- New: Added of the possibility to exit the game with the keyboard shortcut modifier key + f7,
+- Fix: Move the config file to GameData/QuickExit/Config.txt.
 
 v1.10 - 2014.12.22
 - New: Added the possibility to put the QuickExit button with the Stock KSP button,
