@@ -208,7 +208,7 @@ namespace QuickExit {
 			DialogOption[] options = new DialogOption[3];
 			options[0] = new DialogOption(string.Format("Oh noooo! ({0})", GameSettings.MODIFIER_KEY.primary.ToString()), Clear);
 			options[1] = new DialogOption("Configurations!", Config);
-			options[2] = new DialogOption(string.Format("Exit, now! ({0} + {1})", GameSettings.MODIFIER_KEY.primary.ToString(), Key), Exit);
+			options [2] = new DialogOption (string.Format ("Exit, {2}! ({0} + {1})", GameSettings.MODIFIER_KEY.primary.ToString (), Key, (AutomaticSave && HighLogic.LoadedSceneIsGame ? "in " + i + "s" : "now")), Exit);
 			MODialog = new MultiOptionDialog ("Are you sure you want to exit KSP?", windowTitle: "QuickExit", skin: AssetBase.GetGUISkin (ActiveGUI), options: options);
 			PopupDialog.SpawnPopupDialog (MODialog, true, AssetBase.GetGUISkin (ActiveGUI));
 		}
@@ -248,8 +248,8 @@ namespace QuickExit {
 			}
 		}
 		private static void ExitNow() {
-			i = 5;
 			if (isInSave) {
+				i = 5;
 				CantQuitInSave ();
 				return;
 			}
@@ -346,7 +346,11 @@ namespace QuickExit {
 			if (isExit) {
 				string _label;
 				if (!isInSave) {
-					_label = "Exit in " + i + "s";
+					if (i > 0) {
+						_label = "Exit in " + i + "s";
+					} else {
+						_label = "Exiting, bye ...";
+					}
 				} else {
 					_label = "Waiting the savegame ...";
 				}

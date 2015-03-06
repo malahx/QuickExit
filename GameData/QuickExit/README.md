@@ -37,6 +37,9 @@ Delete the QuickExit folder in your KSP/GameData folder.
 
 #### Changelog
 
+v1.21 - 2015.03.06
+- Fix: Corrected the count down (it won't pass to 5 if it exit) (thanks Gaalidas).
+
 v1.20 - 2015.02.13
 - New: Added of the possibility to quit the QuickExit window with the modifier key,
 - New: Added of the possibility to exit the game with the keyboard shortcut modifier key + f7,
@@ -55,16 +58,18 @@ v1.00 - 2014.11.16
 
 #### Thanks!
 
-to jafo38506 to have requested this mod,
-to blizzy for his Toolbar mod,
-to all other mod developers which make this game really huge,
-to my friend Neimad who corrects my bad english ...
-and to Squad for this awesome game.
+* to jafo38506 to have requested this mod,
+* to blizzy for his Toolbar mod,
+* to Matthieu James for the Faenza icon theme,
+* to all other mod developers which make this game really huge,
+* to my friend Neimad who corrects my bad english ...
+* and to Squad for this awesome game.
 
 #### Links
 
-- http://forum.kerbalspaceprogram.com/threads/95168
-- https://kerbalstuff.com/mod/341/QuickExit
-- http://kerbal.curseforge.com/ksp-mods/225624-quickexit
-- https://github.com/malahx/QuickExit
-- Toolbar: http://forum.kerbalspaceprogram.com/threads/60863
+* http://forum.kerbalspaceprogram.com/threads/95168
+* https://kerbalstuff.com/mod/341/QuickExit
+* http://kerbal.curseforge.com/ksp-mods/225624-quickexit
+* https://github.com/malahx/QuickExit
+* Toolbar: http://forum.kerbalspaceprogram.com/threads/60863
+* Faenza icon theme: http://gnome-look.org/content/show.php/Faenza?content=128143
