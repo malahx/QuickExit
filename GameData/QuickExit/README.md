@@ -1,5 +1,5 @@
 ﻿#### QuickExit
-#### A plugin for Kerbal Space Program 0.90.0
+#### A plugin for Kerbal Space Program 1.0.2
 #### Copyright 2015 Malah
 
 This program is free software: you can redistribute it and/or modify
@@ -31,30 +31,46 @@ You have three solutions to launch QuickExit:
 
 Unzip all files. Put the QuickExit folder in your KSP/GameData folder.
 
+#### How to update it?
+
+Unzip all files. Merge the new QuickExit folder with the old folder which is in your KSP/GameData folder.
+
 #### How to uninstall it?
 
 Delete the QuickExit folder in your KSP/GameData folder.
 
 #### Changelog
 
+v1.30 - 2015.05.08
+* New: Added an option to enable/disable count down (true by default),
+* Fix: The Automatic save is now to true by default,
+* Fix: Converted textures to DDS,
+* Fix: Corrected the Stock Toolbar icon not being created,
+* Fix: Deleted Skin configuration,
+* Fix: Deleted the default QuickExit's config file to keep your config file after an update,
+* Fix: Rewrited some function,
+* Optional: Added an optional version of QuickExit without GUI/Toolbars (it keep only the shortcut),
+* Updated ToolbarWrapper to 1.7.9
+* Updated to KSP 1.02
+
 v1.21 - 2015.03.06
-- Fix: Corrected the count down (it won't pass to 5 if it exit) (thanks Gaalidas).
+* Fix: Corrected the count down (it won't pass to 5 if it exit) (thanks Gaalidas).
 
 v1.20 - 2015.02.13
-- New: Added of the possibility to quit the QuickExit window with the modifier key,
-- New: Added of the possibility to exit the game with the keyboard shortcut modifier key + f7,
-- Fix: Move the config file to GameData/QuickExit/Config.txt.
+* New: Added of the possibility to quit the QuickExit window with the modifier key,
+* New: Added of the possibility to exit the game with the keyboard shortcut modifier key + f7,
+* Fix: Move the config file to GameData/QuickExit/Config.txt.
 
 v1.10 - 2014.12.22
-- New: Added the possibility to put the QuickExit button with the Stock KSP button,
-- Update ToolbarWrapper to 1.7.8
-- Update to 0.90
+* New: Added the possibility to put the QuickExit button with the Stock KSP button,
+* Update ToolbarWrapper to 1.7.8
+* Update to KSP 0.90
 
 v1.01 - 2014.11.16
-- Fix: Corrected the savegame file, now it will properly save!
+* Fix: Corrected the savegame file, now it will properly save!
 
 v1.00 - 2014.11.16
-- First release.
+* First release.
 
 #### Thanks!
 
@@ -67,7 +83,7 @@ v1.00 - 2014.11.16
 
 #### Links
 
-* http://forum.kerbalspaceprogram.com/threads/95168
+* http://forum.kerbalspaceprogram.com/threads/95168#QuickExit
 * https://kerbalstuff.com/mod/341/QuickExit
 * http://kerbal.curseforge.com/ksp-mods/225624-quickexit
 * https://github.com/malahx/QuickExit
