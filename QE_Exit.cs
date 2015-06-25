@@ -25,7 +25,6 @@ namespace QuickExit {
 	public class QExit : Quick {
 
 		private DateTime Date = DateTime.Now;
-		//internal MultiOptionDialog MODialog;
 		internal PopupDialog popupDialog;
 		private int i = 5;
 		internal bool isExit = false;
@@ -115,17 +114,6 @@ namespace QuickExit {
 					Clear ();
 				}
 			}
-			/*if (MODialog != null) {
-				if (MODialog.Options.Length > 0) {
-					if (GameSettings.MODIFIER_KEY.GetKeyDown ()) {
-						DialogOption _option = MODialog.Options [0];
-						if (_option != null) {
-							_option.OptionSelected ();
-							Quick.Warning ("_option.OptionSelected ();");
-						}
-					}
-				}
-			}*/
 			if (Input.GetKeyDown (QSettings.Instance.Key)) {
 				if (GameSettings.MODIFIER_KEY.GetKey ()) {
 					if (!isExit) {
@@ -201,7 +189,6 @@ namespace QuickExit {
 
 		private void Clear() {
 			QGUI.Lock (false, ControlTypes.All);
-			//MODialog = null;
 			if (popupDialog != null) {
 				popupDialog.Dismiss ();
 				popupDialog = null;

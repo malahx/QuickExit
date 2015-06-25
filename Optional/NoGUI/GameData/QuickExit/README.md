@@ -1,5 +1,5 @@
 ﻿#### QuickExit
-#### A plugin for Kerbal Space Program 1.0.2
+#### A plugin for Kerbal Space Program 1.0.X
 #### Copyright 2015 Malah
 
 This program is free software: you can redistribute it and/or modify
@@ -41,6 +41,9 @@ Delete the QuickExit folder in your KSP/GameData folder.
 
 #### Changelog
 
+v1.31 - 2015.06.25
+* Updated to KSP 1.0.X
+
 v1.30 - 2015.05.08
 * New: Added an option to enable/disable count down (true by default),
 * Fix: The Automatic save is now to true by default,
@@ -51,7 +54,7 @@ v1.30 - 2015.05.08
 * Fix: Rewrited some function,
 * Optional: Added an optional version of QuickExit without GUI/Toolbars (it keep only the shortcut),
 * Updated ToolbarWrapper to 1.7.9
-* Updated to KSP 1.02
+* Updated to KSP 1.0.2
 
 v1.21 - 2015.03.06
 * Fix: Corrected the count down (it won't pass to 5 if it exit) (thanks Gaalidas).

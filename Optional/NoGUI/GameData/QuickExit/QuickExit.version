@@ -1,1 +1,23 @@
-{"NAME":"QuickExit","URL":"https://raw.githubusercontent.com/malahx/QuickExit/master/QuickExit.version","DOWNLOAD":"https://kerbalstuff.com/mod/341/QuickExit","CHANGE_LOG_URL":"https://raw.githubusercontent.com/malahx/QuickExit/master/README.md","VERSION":{"MAJOR":1,"MINOR":3,"PATCH":0,"BUILD":0},"KSP_VERSION":{"MAJOR":1,"MINOR":0,"PATCH":2}}
+","DOWNLOAD":"https://kerbalstuff.com/mod/341/QuickExit","CHANGE_LOG_URL":"https://raw.githubusercontent.com/malahx/QuickExit/master/README.md","VERSION":{"MAJOR":1,"MINOR":3,"PATCH":0,"BUILD":0},"KSP_VERSION":{"MAJOR":1,"MINOR":0,"PATCH":2}}
+{
+	"NAME": "QuickExit",
+	"URL": "https://raw.githubusercontent.com/malahx/QuickExit/master/QuickExit.version",
+	"CHANGE_LOG_URL": "https://raw.githubusercontent.com/malahx/QuickExit/master/README.md", 
+	"DOWNLOAD": "https://kerbalstuff.com/mod/341/QuickExit"
+	"VERSION":{"MAJOR":1,"MINOR":3,"PATCH":1,"BUILD":0},
+    "KSP_VERSION": {
+        "MAJOR": 1,
+        "MINOR": 0,
+        "PATCH": 4
+    },
+    "KSP_VERSION_MIN": {
+        "MAJOR": 1,
+        "MINOR": 0,
+        "PATCH": 0
+    },
+    "KSP_VERSION_MAX": {
+        "MAJOR": 1,
+        "MINOR": 0,
+        "PATCH": -1
+    }
+}
