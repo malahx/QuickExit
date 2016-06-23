@@ -1,6 +1,6 @@
 ﻿#### QuickExit
-#### A plugin for Kerbal Space Program 1.0.X
-#### Copyright 2015 Malah
+#### A plugin for Kerbal Space Program
+#### Copyright 2016 Malah
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,6 +27,8 @@ You have three solutions to launch QuickExit:
 - with the stock toolbar,
 - with the Blizzy Toolbar (an optional mod).
 
+With the modifier Key + F7 you start QuickExit without the dialog options.
+
 #### How to install it?
 
 Unzip all files. Put the QuickExit folder in your KSP/GameData folder.
@@ -40,6 +42,12 @@ Unzip all files. Merge the new QuickExit folder with the old folder which is in 
 Delete the QuickExit folder in your KSP/GameData folder.
 
 #### Changelog
+
+v2.00 - 2016.06.22
+* New: Added an auto save the current ship on exit from the editor.
+* Fix: Re-write some functions,
+* Fix: Enhanced the settings functions,
+* Compiled against KSP 1.1.3.1289
 
 v1.31 - 2015.06.25
 * Updated to KSP 1.0.X
@@ -87,7 +95,7 @@ v1.00 - 2014.11.16
 #### Links
 
 * http://forum.kerbalspaceprogram.com/threads/95168#QuickExit
-* https://kerbalstuff.com/mod/341/QuickExit
+* http://spacedock.info/mod/105/QuickExit
 * http://kerbal.curseforge.com/ksp-mods/225624-quickexit
 * https://github.com/malahx/QuickExit
 * Toolbar: http://forum.kerbalspaceprogram.com/threads/60863

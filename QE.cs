@@ -1,6 +1,6 @@
 ﻿/* 
 QuickExit
-Copyright 2015 Malah
+Copyright 2016 Malah
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,42 +17,53 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 using System;
+using System.Reflection;
 using UnityEngine;
 
 namespace QuickExit {
 
 	[KSPAddon(KSPAddon.Startup.EveryScene, false)]
-	public class QuickExit : QExit {
-		public static QuickExit Instance;
-		#if GUI
-		[KSPField(isPersistant = true)] internal static QBlizzyToolbar BlizzyToolbar;
-		#endif
-		private void Awake() {
-			if (Instance != null) {
-				Destroy (this);
+	public partial class QExit : QuickExit {}
+
+	[KSPAddon(KSPAddon.Startup.MainMenu, true)]
+	public partial class QStockToolbar : QuickExit {}
+
+	public partial class QuickExit : MonoBehaviour {
+		public readonly static string VERSION = Assembly.GetAssembly(typeof(QuickExit)).GetName().Version.Major + "." + Assembly.GetAssembly(typeof(QuickExit)).GetName().Version.Minor + Assembly.GetAssembly(typeof(QuickExit)).GetName().Version.Build;
+		public readonly static string MOD = Assembly.GetAssembly(typeof(QuickExit)).GetName().Name;
+
+		internal static void Log(string String, string Title = null, bool force = false) {
+			if (!force) {
+				if (!QSettings.Instance.Debug) {
+					return;
+				}
 			}
-			Instance = this;
-			#if GUI
-			if (BlizzyToolbar == null) BlizzyToolbar = new QBlizzyToolbar ();
-			#endif
-			Init ();
-			GameEvents.onGameStateSaved.Add (OnGameStateSaved);
-			GameEvents.onGameStateSave.Add (OnGameStateSave);
+			if (Title == null) {
+				Title = MOD;
+			} else {
+				Title = string.Format ("{0}({1})", MOD, Title);
+			}
+			Debug.Log (string.Format ("{0}[{1}]: {2}", Title, VERSION, String));
+		}
+		internal static void Warning(string String, string Title = null) {
+			if (Title == null) {
+				Title = MOD;
+			} else {
+				Title = string.Format ("{0}({1})", MOD, Title);
+			}
+			Debug.LogWarning (string.Format ("{0}[{1}]: {2}", Title, VERSION, String));
 		}
 
-		private void Start() {
-			QSettings.Instance.Load ();
-			#if GUI
-			BlizzyToolbar.Start ();
-			#endif
+		protected virtual void Awake() {
+			Log ("Awake");
 		}
 
-		private void OnDestroy() {
-			#if GUI
-			BlizzyToolbar.OnDestroy ();
-			#endif
-			GameEvents.onGameStateSaved.Remove (OnGameStateSaved);
-			GameEvents.onGameStateSave.Remove (OnGameStateSave);
+		protected virtual void Start() {
+			Log ("Start");
+		}
+
+		protected virtual void OnDestroy() {
+			Log ("OnDestroy");
 		}
 	}
 }

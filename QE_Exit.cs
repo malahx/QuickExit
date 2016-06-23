@@ -1,6 +1,6 @@
 ﻿/* 
 QuickExit
-Copyright 2015 Malah
+Copyright 2016 Malah
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,225 +22,168 @@ using System.IO;
 using UnityEngine;
 
 namespace QuickExit {
-	public class QExit : Quick {
+	public partial class QExit {
 
-		private DateTime Date = DateTime.Now;
-		internal PopupDialog popupDialog;
-		private int i = 5;
-		internal bool isExit = false;
-		protected bool isInSave = false;
-		protected GUIStyle TextStyleExitIn;
+		public static QExit Instance;
 
-		protected bool CanDraw {
+		[KSPField(isPersistant = true)] internal static QBlizzyToolbar BlizzyToolbar;
+
+		public static readonly string shipFilename = "Auto-Saved Ship";
+
+		private int count = 5;
+
+		private Coroutine coroutineTryExit;
+		private bool IsTryExit {
 			get {
-				return isExit && CanCount;
+				return coroutineTryExit != null;
+			}
+			set {
+				if (coroutineTryExit != null) {
+					StopCoroutine (coroutineTryExit);					
+					coroutineTryExit = null;
+				}
+				saveDone = false;
+				if (value) {
+					if (HighLogic.LoadedSceneIsFlight) {
+						if (FlightDriver.Pause) {
+							FlightDriver.SetPause (false);
+						}
+					}
+					count = (QSettings.Instance.CountDown ? 5 : 0);
+					coroutineTryExit = StartCoroutine (tryExit());
+				}
 			}
 		}
 
-		protected bool CanCount {
+		private bool needToSavegame {
 			get {
-				return (QSettings.Instance.AutomaticSave && HighLogic.LoadedSceneIsGame && !CanSavegame) || QSettings.Instance.CountDown;
+				return QSettings.Instance.AutomaticSave && HighLogic.LoadedSceneIsGame;
 			}
 		}
 
-
-		protected bool CanSavegame {
+		private bool saveDone = false;
+		private bool CanSavegame {
 			get {
 				if (!HighLogic.LoadedSceneIsGame) {
 					return false;
 				}
-				bool _CanSavegame = false;
-				_CanSavegame = !isInSave;
-				if (_CanSavegame) {
-					string _savegame = KSPUtil.ApplicationRootPath + "saves/" + HighLogic.SaveFolder + "/persistent.sfs";
-					if (File.Exists (_savegame)) {
-						FileInfo _info = new FileInfo (_savegame);
-						_CanSavegame = !_info.IsReadOnly;
+				string _savegame = KSPUtil.ApplicationRootPath + "saves/" + HighLogic.SaveFolder + "/persistent.sfs";
+				if (File.Exists (_savegame)) {
+					FileInfo _info = new FileInfo (_savegame);
+					if (_info.IsReadOnly) {
+						Warning (_savegame + " is read only.", "QExit");
+						return false;
 					}
 				}
-
-				if (_CanSavegame) {
-					if (PauseMenu.canSaveAndExit != ClearToSaveStatus.CLEAR) {
-						_CanSavegame = false;
-					}
-				}
-
-				if (_CanSavegame) {
-					if (HighLogic.LoadedSceneIsFlight) {
-						if (FlightGlobals.ready) {
-							if (FlightGlobals.ActiveVessel.IsClearToSave () == ClearToSaveStatus.CLEAR) {
-								goto RETURN;
+				if (HighLogic.LoadedSceneIsFlight) {
+					if (FlightGlobals.ready) {
+						if (FlightGlobals.ActiveVessel.state != Vessel.State.DEAD) {
+							if (FlightGlobals.ActiveVessel.IsClearToSave () != ClearToSaveStatus.CLEAR) {
+								return false;
+							}
+							ClearToSaveStatus clearToSaveStatus = FlightGlobals.ClearToSave ();
+							if (clearToSaveStatus != ClearToSaveStatus.CLEAR) {
+								if (clearToSaveStatus != ClearToSaveStatus.NOT_WHILE_ON_A_LADDER) {
+									if (clearToSaveStatus != ClearToSaveStatus.NOT_WHILE_MOVING_OVER_SURFACE) {
+										return true;
+									}
+								}
+								return false;
 							}
 						}
-						_CanSavegame = false;
 					}
 				}
-				RETURN:
-				return _CanSavegame;
+				return true;
 			}
 		}
 
-		protected void Init() {
-			TextStyleExitIn = new GUIStyle ();
-			TextStyleExitIn.stretchWidth = true;
-			TextStyleExitIn.stretchHeight = true;
-			TextStyleExitIn.alignment = TextAnchor.MiddleCenter;
-			TextStyleExitIn.fontSize = (Screen.height/20);
-			TextStyleExitIn.fontStyle = FontStyle.Bold;
-			TextStyleExitIn.normal.textColor = Color.red;
+		protected override void Awake() {
+			if (Instance != null) {
+				Warning ("There's already an Instance of " + MOD + ". Destroy.", "QGUI");
+				Destroy (this);
+				return;
+			}
+			Instance = this;
+			if (BlizzyToolbar == null) BlizzyToolbar = new QBlizzyToolbar ();
+			Log ("Awake", "QExit");
 		}
 
-		protected void OnGameStateSaved(Game game) {
-			isInSave = false;
-			if (isExit) {
-				Log ("Game Saved");
-				if (!QSettings.Instance.CountDown) {
-					ExitNow ();
-				}
-			}
+		protected override void Start() {
+			if (BlizzyToolbar != null) BlizzyToolbar.Init ();
+			labelStyle = new GUIStyle ();
+			labelStyle.stretchWidth = true;
+			labelStyle.stretchHeight = true;
+			labelStyle.alignment = TextAnchor.MiddleCenter;
+			labelStyle.fontSize = (Screen.height/20);
+			labelStyle.fontStyle = FontStyle.Bold;
+			labelStyle.normal.textColor = Color.red;
+			Log ("Start", "QExit");
 		}
 
-		protected void OnGameStateSave(ConfigNode configNode) {
-			isInSave = true;
-			if (isExit) {
-				Log ("Save Game");
-			}
-
-		}
-
-		protected void Update() {
-			if (popupDialog != null) {
-				if (GameSettings.MODIFIER_KEY.GetKeyDown ()) {
-					Clear ();
-				}
-			}
+		private void Update() {
 			if (Input.GetKeyDown (QSettings.Instance.Key)) {
-				if (GameSettings.MODIFIER_KEY.GetKey ()) {
-					if (!isExit) {
-						Exit ();
+				if (IsTryExit) {
+					TryExit ();
+				} else {
+					if (GameSettings.MODIFIER_KEY.GetKey ()) {
+						TryExit ();
 					} else {
-						Clear ();
-					}
-					#if GUI
-				} else if (!QGUI.WindowSettings) {
-					#else
-					} else {
-					#endif
-					if (popupDialog == null) {
 						Dialog ();
 					}
 				}
 			}
 		}
+			
+		protected override void OnDestroy() {
+			if (BlizzyToolbar != null) BlizzyToolbar.Destroy ();
+			Log ("OnDestroy", "QExit");
+		}
 
-		protected void OnGUI() {
-			#if GUI
-			QGUI.OnGUI ();
-			#endif
-			if (!CanDraw) {
-				return;
-			}
-			string _label;
-			if (!isInSave || !HighLogic.LoadedSceneIsGame) {
-				if (i > 0) {
-					_label = "Exit in " + i + "s";
-					if ((DateTime.Now - Date).TotalSeconds >= 1) {
-						Date = DateTime.Now;
-						i--;
+		private IEnumerator tryExit() {
+			if (needToSavegame) {
+				if (CanSavegame) {
+					if (GamePersistence.SaveGame ("persistent", HighLogic.SaveFolder, SaveMode.OVERWRITE) != string.Empty) {
+						saveDone = true;
+						ScreenMessages.PostScreenMessage (string.Format ("[{0}] Game saved.", MOD), 5);
+						Log ("Game saved.", "QExit");
+					} else {
+						count = 10;
+						Log ("Can't save game.", "QExit");
+						ScreenMessages.PostScreenMessage (string.Format ("[{0}] Can't save game.", MOD), 10);
+					}
+					if (HighLogic.LoadedSceneIsEditor) {
+						ShipConstruction.SaveShip (shipFilename);
+						Log ("Ship saved.", "QExit");
+						ScreenMessages.PostScreenMessage (string.Format ("[{0}] Ship saved.", MOD), 5);
 					}
 				} else {
-					_label = "Exiting, bye ...";
-					ExitNow ();
+					count = 10;
+					ClearToSaveStatus clearToSaveStatus = FlightGlobals.ClearToSave ();
+					string _status = FlightGlobals.GetNotClearToSaveStatusReason (clearToSaveStatus, string.Empty);
+					Log ("Can't game saved: " + _status, "QExit");
+					ScreenMessages.PostScreenMessage (string.Format ("[{0}] Can't save game: {1}", MOD, _status.ToString ()), 10);
 				}
-			} else {
-				_label = "Waiting the savegame ...";
 			}
-			if (!CanSavegame && HighLogic.LoadedSceneIsGame) {
-				_label += Environment.NewLine + "Can't save!";
+			while (count >= 0) {
+				yield return new WaitForSeconds (1);
+				Log ("Exit in " + count, "QExit");
+				count--;
 			}
-			_label += Environment.NewLine + "Push on " + QSettings.Instance.Key + " to abort the operation.";
-			GUILayout.BeginArea (new Rect (0, 0, Screen.width, Screen.height), TextStyleExitIn);
-			GUILayout.Label (_label, TextStyleExitIn);
-			GUILayout.EndArea ();
-		}
-
-		public void Dialog() {
-			Clear();
-			QGUI.Lock (true, ControlTypes.All);
-			#if GUI
-			if (QStockToolbar.Instance != null) {
-				QStockToolbar.Instance.Set (true);
-			}
-			DialogOption[] options = new DialogOption[3];
-			#else
-			DialogOption[] options = new DialogOption[2];
-			#endif
-			options[0] = new DialogOption(string.Format("Oh noooo! ({0})", GameSettings.MODIFIER_KEY.primary.ToString()), Clear);
-			#if GUI
-			options [1] = new DialogOption ("Configurations!", QGUI.Settings);
-			options [2] = new DialogOption (string.Format ("Exit, {2}! ({0} + {1})", GameSettings.MODIFIER_KEY.primary.ToString (), QSettings.Instance.Key, (CanCount ? "in " + (CanSavegame || !HighLogic.LoadedSceneIsGame ? 5 : 10) + "s" : "now")), Exit);
-			#else
-			options [1] = new DialogOption (string.Format ("Exit, {2}! ({0} + {1})", GameSettings.MODIFIER_KEY.primary.ToString (), QSettings.Instance.Key, (CanCount ? "in " + (CanSavegame || !HighLogic.LoadedSceneIsGame ? 5 : 10) + "s" : "now")), Exit);
-			#endif
-			MultiOptionDialog _MODialog = new MultiOptionDialog ("Are you sure you want to exit KSP?", windowTitle: "QuickExit", skin: HighLogic.Skin, options: options);
-			popupDialog = PopupDialog.SpawnPopupDialog (_MODialog, true, HighLogic.Skin);
-			Log("Dialog");
-		}
-
-		private void Clear() {
-			QGUI.Lock (false, ControlTypes.All);
-			if (popupDialog != null) {
-				popupDialog.Dismiss ();
-				popupDialog = null;
-			}
-			isExit = false;
-			i = 5;
-			#if GUI
-			if (QGUI.WindowSettings) {
-				QGUI.Settings ();
-			}
-			if (QStockToolbar.Instance != null) {
-				QStockToolbar.Instance.Set (false);
-			}
-			#endif
-			Log ("Clear");
-		}
-
-		public void Exit() {
-			Clear ();
-			Date = DateTime.Now;
-			isExit = true;
-			QGUI.Lock (true, ControlTypes.All);
-			if (QSettings.Instance.AutomaticSave && HighLogic.LoadedSceneIsGame) {
-				if (CanSavegame) {
-					GamePersistence.SaveGame ("persistent", HighLogic.SaveFolder, SaveMode.OVERWRITE);
-				} else {
-					i = 10;
-					Log("Can't Save game");
-				}
-				return;
-			}
-			if (!QSettings.Instance.CountDown) {
-				ExitNow ();
-				return;
-			}
-			Log ("Exit");
-		}
-
-		protected void ExitNow() {
-			if (isInSave) {
-				CantQuitInSave ();
-				return;
+			if (!IsTryExit) {
+				Log ("tryExit stopped", "QExit");
+				yield break;
 			}
 			Application.Quit ();
-			Log("Exit Now!");
+			Log ("tryExit ended", "QExit");
 		}
 
-		protected void CantQuitInSave() {
-			ScreenMessages.PostScreenMessage ("[" + MOD + "] Can't exit while a savegame is in progress.", 10, ScreenMessageStyle.LOWER_CENTER);
-			isExit = true;
-			i = 5;
-			Log("Can't quit in save");
+		public void TryExit(bool force = false) {
+			if (!IsTryExit || force) {
+				IsTryExit = true;
+			} else {
+				IsTryExit = false;
+			}
+			Log ("TryExit: " + IsTryExit + " force: " + force, "QExit");
 		}
 	}
 }

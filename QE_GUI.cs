@@ -1,6 +1,6 @@
 ﻿/* 
 QuickExit
-Copyright 2015 Malah
+Copyright 2016 Malah
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,85 +22,135 @@ using UnityEngine;
 
 namespace QuickExit {
 
-	public class QGUI : MonoBehaviour {
-		#if GUI
-		internal static bool WindowSettings = false;
-		private static Rect RectSettings = new Rect();
+	public partial class QExit {
 
-		internal static void RefreshRect() {
-			RectSettings.x = (Screen.width - RectSettings.width) / 2;
-			RectSettings.y = (Screen.height - RectSettings.height) / 2;
+		private GUIStyle labelStyle;
+		
+		private bool WindowSettings = false;
+
+		private Rect rectSettings = new Rect();
+		private Rect RectSettings {
+			get {
+				rectSettings.x = (Screen.width - rectSettings.width) / 2;
+				rectSettings.y = (Screen.height - rectSettings.height) / 2;
+				return rectSettings;
+			}
+			set {
+				rectSettings = value;
+			}
 		}
-		#endif
 
-		internal static void Lock(bool activate, ControlTypes Ctrl) {
+		private string exitText {
+			get {
+				string _text = string.Empty;
+				if (count > 0) {
+					_text = string.Format ("Exit in {0}s{1}Push on {2} to abort the operation.", count, Environment.NewLine, QSettings.Instance.Key);
+					if (needToSavegame) {
+						if (!saveDone) {
+							_text += string.Format ("{0}{1} can't savegame, are you sure you want to exit?", Environment.NewLine, MOD);
+						}
+					}
+				} else {
+					_text = "Exiting, bye ...";
+				}
+				return _text;
+			}
+		}
+
+		private void Lock(bool activate, ControlTypes Ctrl) {
 			if (HighLogic.LoadedSceneIsFlight) {
 				FlightDriver.SetPause (activate);
 				if (activate) {
-					InputLockManager.SetControlLock (ControlTypes.CAMERACONTROLS | ControlTypes.MAP, "Lock" + Quick.MOD);
+					InputLockManager.SetControlLock (ControlTypes.CAMERACONTROLS | ControlTypes.MAP, "Lock" + MOD);
 					return;
 				}
 			} else if (HighLogic.LoadedSceneIsEditor) {
 				if (activate) {
-					EditorLogic.fetch.Lock(true, true, true, "EditorLock" + Quick.MOD);
+					EditorLogic.fetch.Lock(true, true, true, "EditorLock" + MOD);
 					return;
 				} else {
-					EditorLogic.fetch.Unlock ("EditorLock" + Quick.MOD);
+					EditorLogic.fetch.Unlock ("EditorLock" + MOD);
 				}
 			}
 			if (activate) {
-				InputLockManager.SetControlLock (Ctrl, "Lock" + Quick.MOD);
+				InputLockManager.SetControlLock (Ctrl, "Lock" + MOD);
 				return;
 			} else {
-				InputLockManager.RemoveControlLock ("Lock" + Quick.MOD);
+				InputLockManager.RemoveControlLock ("Lock" + MOD);
 			}
-			if (InputLockManager.GetControlLock ("Lock" + Quick.MOD) != ControlTypes.None) {
-				InputLockManager.RemoveControlLock ("Lock" + Quick.MOD);
+			if (InputLockManager.GetControlLock ("Lock" + MOD) != ControlTypes.None) {
+				InputLockManager.RemoveControlLock ("Lock" + MOD);
 			}
-			if (InputLockManager.GetControlLock ("EditorLock" + Quick.MOD) != ControlTypes.None) {
-				InputLockManager.RemoveControlLock ("EditorLock" + Quick.MOD);
+			if (InputLockManager.GetControlLock ("EditorLock" + MOD) != ControlTypes.None) {
+				InputLockManager.RemoveControlLock ("EditorLock" + MOD);
 			}
+			Log ("Lock " + activate, "QExit");
 		}
 
-		#if GUI
-		internal static void Settings() {
+		private void Settings() {
 			SettingsSwitch ();
 			if (!WindowSettings) {
 				QStockToolbar.Instance.Reset ();
-				QuickExit.BlizzyToolbar.Reset ();
+				QExit.BlizzyToolbar.Reset ();
 				QSettings.Instance.Save ();
 			}
-		}
-		internal static void SettingsSwitch() {
-			WindowSettings = !WindowSettings;
-			QStockToolbar.Instance.Set (WindowSettings);
-			Lock (WindowSettings, ControlTypes.All);
-			//QuickExit.Instance.MODialog = null;
-			QuickExit.Instance.popupDialog = null;
+			Log ("Settings", "QExit");
 		}
 
-		internal static void OnGUI() {
+		private void SettingsSwitch() {
+			WindowSettings = !WindowSettings;
+			Lock (WindowSettings, ControlTypes.All);
+			Log ("SettingsSwitch", "QExit");
+		}
+
+		private void ShowSettings() {
+			WindowSettings = true;
+			Lock (WindowSettings, ControlTypes.All);
+			Log ("ShowSettings", "QExit");
+		}
+
+		private void HideSettings() {
+			WindowSettings = false;
+			Lock (WindowSettings, ControlTypes.All);
+			IsTryExit = false;
+			Log ("HideSettings", "QExit");
+		}
+
+		public void Dialog() {
+			if (QStockToolbar.Instance != null) QStockToolbar.Instance.Set (false);
+			string _count = (QSettings.Instance.CountDown ? "in 5s" : ((needToSavegame && !CanSavegame) ? "in 10s" : "now"));
+			PopupDialog.SpawnPopupDialog (new Vector2 (0.5f, 0.5f), new Vector2 (0.5f, 0.5f), 
+				new MultiOptionDialog ("Are you sure you want to exit KSP?", MOD, HighLogic.UISkin, new DialogGUIBase[] {
+					new DialogGUIButton ("Oh noooo!", () => HideSettings ()),
+					new DialogGUIButton ("Configurations!", () => ShowSettings ()),
+					new DialogGUIButton (string.Format ("Exit, {0}! ({1} + {2})", _count, GameSettings.MODIFIER_KEY.primary.ToString (), QSettings.Instance.Key), () => TryExit (true))
+				}), 
+				true, HighLogic.UISkin);
+			Log ("Dialog", "QExit");
+		}
+
+		private void OnGUI() {
 			if (WindowSettings) {
 				GUI.skin = HighLogic.Skin;
-				RefreshRect ();
-				RectSettings = GUILayout.Window (1248597845, RectSettings, DrawSettings, Quick.MOD + Quick.VERSION, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+				RectSettings = GUILayout.Window (1248597845, RectSettings, DrawSettings, MOD + VERSION, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+			} 
+			if (IsTryExit) {
+				GUILayout.BeginArea (new Rect (0, 0, Screen.width, Screen.height), labelStyle);
+				GUILayout.Label (exitText, labelStyle);
+				GUILayout.EndArea ();
 			}
 		}
 
-		private static void DrawSettings(int id) {
+		private void DrawSettings(int id) {
 			GUILayout.BeginVertical();
 			GUILayout.BeginHorizontal();
-			bool _bool = GUILayout.Toggle (QSettings.Instance.StockToolBar, "Use the Stock ToolBar", GUILayout.Width(210));
-			if (_bool != QSettings.Instance.StockToolBar) {
-				QSettings.Instance.StockToolBar = _bool;
-				RectSettings.height = 0;
-			}
+			QSettings.Instance.StockToolBar = GUILayout.Toggle (QSettings.Instance.StockToolBar, "Use the Stock ToolBar", GUILayout.Width(210));
 			GUILayout.EndHorizontal();
 			GUILayout.Space(5);
 			if (QSettings.Instance.StockToolBar) {
 				GUILayout.BeginHorizontal ();
 				GUILayout.Space (30);
-				QSettings.Instance.StockToolBar_inlast = GUILayout.Toggle (QSettings.Instance.StockToolBar_inlast, "Put QuickExit in Stock", GUILayout.Width (180));
+				QSettings.Instance.StockToolBar_ModApp = !GUILayout.Toggle (!QSettings.Instance.StockToolBar_ModApp, "Put QuickExit in Stock", GUILayout.Width (180));
 				GUILayout.EndHorizontal ();
 				GUILayout.Space (5);
 			}
@@ -124,17 +174,18 @@ namespace QuickExit {
 			QSettings.Instance.Key = GUILayout.TextField (QSettings.Instance.Key, GUILayout.Width (100));
 			GUILayout.EndHorizontal();
 			GUILayout.Space(5);
+			GUILayout.FlexibleSpace ();
 			GUILayout.BeginHorizontal();
 			if (GUILayout.Button ("Exit", GUILayout.Width(40), GUILayout.Height(30))) {
 				Settings();
-				QuickExit.Instance.Exit ();
+				TryExit ();
 			}
 			GUILayout.Space(5);
 			if (GUILayout.Button ("Close", GUILayout.ExpandWidth(true) ,GUILayout.Height(30))) {
 				try {
 					Input.GetKey(QSettings.Instance.Key);
 				} catch {
-					Quick.Log ("Wrong key: " + QSettings.Instance.Key);
+					QuickExit.Log ("Wrong key: " + QSettings.Instance.Key);
 					QSettings.Instance.Key = "f7";
 				}
 				Settings ();
@@ -143,6 +194,5 @@ namespace QuickExit {
 			GUILayout.Space(5);
 			GUILayout.EndVertical();
 		}
-		#endif
 	}
 }

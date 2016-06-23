@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickExit", "QuickExit.csproj", "{53F47534-1537-4369-94EF-79311FA08A9F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoGUI", "NoGUI\NoGUI.csproj", "{BF5BF325-C4A5-468C-A4D9-2C8449419C4C}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,16 +13,12 @@ Global
 		{53F47534-1537-4369-94EF-79311FA08A9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{53F47534-1537-4369-94EF-79311FA08A9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{53F47534-1537-4369-94EF-79311FA08A9F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BF5BF325-C4A5-468C-A4D9-2C8449419C4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BF5BF325-C4A5-468C-A4D9-2C8449419C4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BF5BF325-C4A5-468C-A4D9-2C8449419C4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BF5BF325-C4A5-468C-A4D9-2C8449419C4C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		Policies = $0
 		$0.DotNetNamingPolicy = $1
 		$1.DirectoryNamespaceAssociation = None
 		$1.ResourceNamePolicy = FileFormatDefault
-		version = 1.31
+		version = 
 	EndGlobalSection
 EndGlobal

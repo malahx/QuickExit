@@ -1,6 +1,6 @@
 ﻿/* 
 QuickExit
-Copyright 2015 Malah
+Copyright 2016 Malah
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,13 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>. 
 */
 
+using KSP.UI.Screens;
 using System;
 using System.Collections;
 using UnityEngine;
 
 namespace QuickExit {
-	[KSPAddon(KSPAddon.Startup.MainMenu, true)]
-	public class QStockToolbar : MonoBehaviour {
+	public partial class QStockToolbar {
 
 		internal static bool Enabled {
 			get {
@@ -32,7 +32,7 @@ namespace QuickExit {
 
 		private static bool ModApp {
 			get {
-				return !QSettings.Instance.StockToolBar_inlast;
+				return QSettings.Instance.StockToolBar_ModApp;
 			}
 		}
 
@@ -42,11 +42,12 @@ namespace QuickExit {
 			}
 		}
 
-		private ApplicationLauncher.AppScenes AppScenes = ApplicationLauncher.AppScenes.ALWAYS;
-		private static string TexturePath = Quick.MOD + "/Textures/StockToolBar";
+		private ApplicationLauncher.AppScenes AppScenes = ApplicationLauncher.AppScenes.FLIGHT | ApplicationLauncher.AppScenes.MAPVIEW | ApplicationLauncher.AppScenes.SPACECENTER | ApplicationLauncher.AppScenes.SPH | ApplicationLauncher.AppScenes.TRACKSTATION | ApplicationLauncher.AppScenes.VAB;
+		private static string TexturePath = QuickExit.MOD + "/Textures/StockToolBar";
 
 		private void OnClick() { 
-			QuickExit.Instance.Dialog ();
+			QExit.Instance.Dialog ();
+			Log ("OnClick", "QStockToolbar");
 		}
 			
 		private Texture2D GetTexture {
@@ -73,7 +74,7 @@ namespace QuickExit {
 			private set;
 		}
 
-		private void Awake() {
+		protected override void Awake() {
 			if (Instance != null) {
 				Destroy (this);
 				return;
@@ -83,14 +84,19 @@ namespace QuickExit {
 			GameEvents.onGUIApplicationLauncherReady.Add (AppLauncherReady);
 			GameEvents.onGUIApplicationLauncherDestroyed.Add (AppLauncherDestroyed);
 			GameEvents.onLevelWasLoadedGUIReady.Add (AppLauncherDestroyed);
+			Log ("Awake", "QStockToolbar");
+		}
+
+		protected override void Start() {
+			Log ("Start", "QStockToolbar");
 		}
 			
 		private void AppLauncherReady() {
-			QSettings.Instance.Load ();
 			if (!Enabled) {
 				return;
 			}
 			Init ();
+			Log ("AppLauncherReady", "QStockToolbar");
 		}
 
 		private void AppLauncherDestroyed(GameScenes gameScene) {
@@ -98,16 +104,19 @@ namespace QuickExit {
 				return;
 			}
 			Destroy ();
+			Log ("AppLauncherDestroyed", "QStockToolbar");
 		}
 
 		private void AppLauncherDestroyed() {
 			Destroy ();
+			Log ("AppLauncherDestroyed", "QStockToolbar");
 		}
 
-		private void OnDestroy() {
+		protected override void OnDestroy() {
 			GameEvents.onGUIApplicationLauncherReady.Remove (AppLauncherReady);
 			GameEvents.onGUIApplicationLauncherDestroyed.Remove (AppLauncherDestroyed);
 			GameEvents.onLevelWasLoadedGUIReady.Remove (AppLauncherDestroyed);
+			Log ("OnDestroy", "QStockToolbar");
 		}
 
 		private void Init() {
@@ -123,6 +132,7 @@ namespace QuickExit {
 					ApplicationLauncher.Instance.DisableMutuallyExclusive (appLauncherButton);
 				}
 			}
+			Log ("Init", "QStockToolbar");
 		}
 
 		private void Destroy() {
@@ -131,6 +141,7 @@ namespace QuickExit {
 				ApplicationLauncher.Instance.RemoveApplication (appLauncherButton);
 				appLauncherButton = null;
 			}
+			Log ("Destroy", "QStockToolbar");
 		}
 
 		internal void Set(bool SetTrue, bool force = false) {
@@ -139,15 +150,16 @@ namespace QuickExit {
 			}
 			if (appLauncherButton != null) {
 				if (SetTrue) {
-					if (appLauncherButton.State == RUIToggleButton.ButtonState.FALSE) {
+					if (appLauncherButton.toggleButton.CurrentState == KSP.UI.UIRadioButton.State.False) {
 						appLauncherButton.SetTrue (force);
 					}
 				} else {
-					if (appLauncherButton.State == RUIToggleButton.ButtonState.TRUE) {
+					if (appLauncherButton.toggleButton.CurrentState == KSP.UI.UIRadioButton.State.True) {
 						appLauncherButton.SetFalse (force);
 					}
 				}
 			}
+			Log ("Set " + SetTrue + " force: " + force, "QStockToolbar");
 		}
 
 		internal void Reset() {
@@ -160,6 +172,7 @@ namespace QuickExit {
 			if (Enabled) {
 				Init ();
 			}
+			Log ("Reset", "QStockToolbar");
 		}
 	}
 }

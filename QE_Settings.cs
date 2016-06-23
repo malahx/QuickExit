@@ -1,6 +1,6 @@
 ﻿/* 
 QuickExit
-Copyright 2015 Malah
+Copyright 2016 Malah
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,26 +21,34 @@ using System.IO;
 using UnityEngine;
 
 namespace QuickExit {
-	public class QSettings : MonoBehaviour {
+	public class QSettings : QuickExit {
 
-		public readonly static QSettings Instance = new QSettings();
+		[KSPField(isPersistant = true)]	private static readonly QSettings instance = new QSettings ();
+		public static QSettings Instance {
+			get {
+				if (!instance.isLoaded) {
+					instance.Load ();
+				}
+				return instance;
+			}
+		}
 
-		internal static string FileConfig = KSPUtil.ApplicationRootPath + "GameData/" + Quick.MOD + "/Config.txt";
+		internal static string FileConfig = KSPUtil.ApplicationRootPath + "GameData/" + MOD + "/Config.txt";
 
+		[KSPField(isPersistant = true)]	private bool isLoaded = false;
+
+		[Persistent] internal bool Debug = true;
 		[Persistent] internal bool CountDown = true;
 		[Persistent] internal bool AutomaticSave = true;
 		[Persistent] internal string Key = "f7";
-
-		#if GUI
 		[Persistent] internal bool StockToolBar = true;
-		[Persistent] internal bool StockToolBar_inlast = false;
+		[Persistent] internal bool StockToolBar_ModApp = true;
 		[Persistent] internal bool BlizzyToolBar = true;
-		#endif
 
 		public void Save() {
 			ConfigNode _temp = ConfigNode.CreateConfigFromObject(this, new ConfigNode());
 			_temp.Save(FileConfig);
-			Quick.Log ("Settings Saved");
+			Log ("Settings Saved", "QSettings", true);
 		}
 
 		public void Load() {
@@ -48,13 +56,14 @@ namespace QuickExit {
 				try {
 					ConfigNode _temp = ConfigNode.Load (FileConfig);
 					ConfigNode.LoadObjectFromConfig (this, _temp);
-					Quick.Log ("Settings Loaded");
 				} catch {
 					Save ();
 				}
+				Log ("Settings Loaded", "QSettings", true);
 			} else {
 				Save ();
 			}
+			isLoaded = true;
 		}
 	}
 }

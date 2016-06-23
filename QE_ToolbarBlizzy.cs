@@ -1,6 +1,6 @@
 ﻿/* 
 QuickExit
-Copyright 2015 Malah
+Copyright 2016 Malah
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,9 +27,9 @@ namespace QuickExit {
 				return QSettings.Instance.BlizzyToolBar;
 			}
 		}
-		private string TexturePath = Quick.MOD + "/Textures/BlizzyToolBar";
+		private string TexturePath = QuickExit.MOD + "/Textures/BlizzyToolBar";
 		private void OnClick() { 
-			QuickExit.Instance.Dialog ();
+			QExit.Instance.Dialog ();
 		}
 
 		private IButton Button;
@@ -40,17 +40,17 @@ namespace QuickExit {
 			}
 		}
 
-		internal void Start() {
+		internal void Init() {
 			if (!HighLogic.LoadedSceneIsGame || !isAvailable || !Enabled || Button != null) {
 				return;
 			}
-			Button = ToolbarManager.Instance.add (Quick.MOD, Quick.MOD);
+			Button = ToolbarManager.Instance.add (QuickExit.MOD, QuickExit.MOD);
 			Button.TexturePath = TexturePath;
-			Button.ToolTip = Quick.MOD;
+			Button.ToolTip = QuickExit.MOD;
 			Button.OnClick += (e) => OnClick ();
 		}
 
-		internal void OnDestroy() {
+		internal void Destroy() {
 			if (!isAvailable || Button == null) {
 				return;
 			}
@@ -60,9 +60,9 @@ namespace QuickExit {
 
 		internal void Reset() {
 			if (Enabled) {
-				Start ();
+				Init ();
 			} else {
-				OnDestroy ();
+				Destroy ();
 			}
 		}
 	}
