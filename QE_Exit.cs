@@ -44,13 +44,16 @@ namespace QuickExit {
 				}
 				saveDone = false;
 				if (value) {
-					if (HighLogic.LoadedSceneIsFlight) {
-						if (FlightDriver.Pause) {
-							FlightDriver.SetPause (false);
-						}
+					if (HighLogic.LoadedSceneIsFlight && FlightDriver.Pause) {
+						FlightDriver.SetPause (true);
 					}
 					count = (QSettings.Instance.CountDown ? 5 : 0);
-					coroutineTryExit = StartCoroutine (tryExit());
+					coroutineTryExit = StartCoroutine (tryExit ());
+				}
+				else {
+					if (HighLogic.LoadedSceneIsFlight && !PauseMenu.isOpen) {
+						FlightDriver.SetPause (false);
+					}
 				}
 			}
 		}
@@ -165,7 +168,10 @@ namespace QuickExit {
 				}
 			}
 			while (count >= 0) {
-				yield return new WaitForSeconds (1);
+				float pauseEndTime = Time.realtimeSinceStartup + 1;
+				while (Time.realtimeSinceStartup < pauseEndTime) {
+					yield return 0;
+				}
 				Log ("Exit in " + count, "QExit");
 				count--;
 			}
