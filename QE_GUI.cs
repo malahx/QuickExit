@@ -17,7 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace QuickExit {
@@ -119,13 +118,12 @@ namespace QuickExit {
 		public void Dialog() {
 			if (QStockToolbar.Instance != null) QStockToolbar.Instance.Set (false);
 			string _count = (QSettings.Instance.CountDown ? "in 5s" : ((needToSavegame && !CanSavegame) ? "in 10s" : "now"));
-			PopupDialog.SpawnPopupDialog (new Vector2 (0.5f, 0.5f), new Vector2 (0.5f, 0.5f), 
-				new MultiOptionDialog ("Are you sure you want to exit KSP?", MOD, HighLogic.UISkin, new DialogGUIBase[] {
-					new DialogGUIButton ("Oh noooo!", () => HideSettings ()),
-					new DialogGUIButton ("Configurations!", () => ShowSettings ()),
-					new DialogGUIButton (string.Format ("Exit, {0}! ({1} + {2})", _count, GameSettings.MODIFIER_KEY.primary.ToString (), QSettings.Instance.Key), () => TryExit (true))
-				}), 
-				true, HighLogic.UISkin);
+			PopupDialog.SpawnPopupDialog (
+				new MultiOptionDialog ("Are you sure you want to exit KSP?", windowTitle: MOD, skin: HighLogic.Skin, options: new DialogOption[] {
+					new DialogOption ("Oh noooo!", () => HideSettings ()),
+					new DialogOption ("Configurations!", () => ShowSettings ()),
+					new DialogOption (string.Format ("Exit, {0}! ({1} + {2})", _count, GameSettings.MODIFIER_KEY.primary.ToString (), QSettings.Instance.Key), () => TryExit (true))
+				}), true, HighLogic.Skin);
 			Log ("Dialog", "QExit");
 		}
 

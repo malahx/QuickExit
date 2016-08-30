@@ -16,7 +16,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>. 
 */
 
-using System;
 using System.Collections;
 using System.IO;
 using UnityEngine;
@@ -45,12 +44,22 @@ namespace QuickExit {
 				saveDone = false;
 				if (value) {
 					if (HighLogic.LoadedSceneIsFlight) {
+						if (PauseMenu.isOpen) {
+							PauseMenu.Close ();
+						}
+						if (!FlightDriver.Pause) {
+							FlightDriver.SetPause (true);
+						}
+					}
+					count = (QSettings.Instance.CountDown ? 5 : 0);
+					coroutineTryExit = StartCoroutine (tryExit ());
+				}
+				else {
+					if (HighLogic.LoadedSceneIsFlight) {
 						if (FlightDriver.Pause) {
 							FlightDriver.SetPause (false);
 						}
 					}
-					count = (QSettings.Instance.CountDown ? 5 : 0);
-					coroutineTryExit = StartCoroutine (tryExit());
 				}
 			}
 		}

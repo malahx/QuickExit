@@ -16,9 +16,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>. 
 */
 
-using KSP.UI.Screens;
-using System;
-using System.Collections;
 using UnityEngine;
 
 namespace QuickExit {
@@ -150,11 +147,11 @@ namespace QuickExit {
 			}
 			if (appLauncherButton != null) {
 				if (SetTrue) {
-					if (appLauncherButton.toggleButton.CurrentState == KSP.UI.UIRadioButton.State.False) {
+					if (appLauncherButton.State == RUIToggleButton.ButtonState.FALSE) {
 						appLauncherButton.SetTrue (force);
 					}
 				} else {
-					if (appLauncherButton.toggleButton.CurrentState == KSP.UI.UIRadioButton.State.True) {
+					if (appLauncherButton.State == RUIToggleButton.ButtonState.TRUE) {
 						appLauncherButton.SetFalse (force);
 					}
 				}
