@@ -174,10 +174,7 @@ namespace QuickExit {
 				}
 			}
 			while (count >= 0) {
-				float pauseEndTime = Time.realtimeSinceStartup + 1;
-				while (Time.realtimeSinceStartup < pauseEndTime) {
-					yield return 0;
-				}
+				yield return new WaitForSecondsRealtime (1f);
 				Log ("Exit in " + count, "QExit");
 				count--;
 			}

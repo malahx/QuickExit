@@ -43,6 +43,10 @@ Delete the QuickExit folder in your KSP/GameData folder.
 
 #### Changelog
 
+v2.02 - 2016.09.14
+* Fix: Enhanced wait functions,
+* Compiled against KSP 1.2.0.1473
+
 v2.01-113 - 2016.08.30
 * Fix: Added a pause in flight,
 * Fix: Corrected exit if the game is paused.
